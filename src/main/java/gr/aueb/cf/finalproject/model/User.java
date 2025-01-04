@@ -45,7 +45,7 @@ public class User extends AbstractEntity implements UserDetails {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 

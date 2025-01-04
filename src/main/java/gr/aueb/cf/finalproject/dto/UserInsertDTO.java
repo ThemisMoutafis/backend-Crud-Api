@@ -32,6 +32,7 @@ public class UserInsertDTO {
     @NotEmpty(message ="lastname name is required")
     private String lastname;
     @Email(message = "invalid email")
+    @NotEmpty(message = "email is required")
     private String email;
     @NotNull(message = "birthdate is required")
     private LocalDate birthdate;
