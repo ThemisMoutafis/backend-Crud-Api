@@ -14,4 +14,5 @@ public class UserReadOnlyDTO {
     private String lastname;
     private String email;
     private String countryName;
+    private boolean isActive;
 }

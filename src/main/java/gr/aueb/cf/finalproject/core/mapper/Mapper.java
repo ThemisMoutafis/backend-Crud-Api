@@ -1,9 +1,9 @@
 package gr.aueb.cf.finalproject.core.mapper;
 
 import gr.aueb.cf.finalproject.core.enums.Role;
-import gr.aueb.cf.finalproject.core.exceptions.AppObjectInvalidArgumentException;
 import gr.aueb.cf.finalproject.dto.UserInsertDTO;
 import gr.aueb.cf.finalproject.dto.UserReadOnlyDTO;
+import gr.aueb.cf.finalproject.dto.UserUpdateDTO;
 import gr.aueb.cf.finalproject.model.User;
 import gr.aueb.cf.finalproject.model.static_data.Country;
 import gr.aueb.cf.finalproject.repository.CountryRepository;
@@ -11,6 +11,10 @@ import gr.aueb.cf.finalproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * Doing all the necessary mapping, assigning DTOs to user entities and the reverse.
+ */
 @Component
 @RequiredArgsConstructor
 public class Mapper {
@@ -34,6 +38,19 @@ public class Mapper {
         return user;
     }
     public UserReadOnlyDTO mapToUserReadOnlyDTO(User user) {
-        return new UserReadOnlyDTO(user.getFirstname(),user.getLastname(),user.getEmail(),user.getCountry().getName());
+        return new UserReadOnlyDTO(user.getFirstname(),user.getLastname(),user.getEmail(),user.getCountry().getName(), user.getIsActive());
+    }
+
+    public User mapToUpdateUserEntity(UserUpdateDTO userUpdateDTO, User user)  {
+        user.setFirstname(userUpdateDTO.getFirstname());
+        user.setLastname(userUpdateDTO.getLastname());
+        user.setEmail(userUpdateDTO.getEmail());
+        Country country = countryRepository.findByName(userUpdateDTO.getCountryName())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid country ID"));
+        user.setCountry(country);
+        user.setPassword(userUpdateDTO.getPassword());
+        user.setBirthdate(userUpdateDTO.getBirthdate());
+
+        return user;
     }
 }
