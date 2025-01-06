@@ -41,8 +41,8 @@ public class UserRestController {
 
     @PutMapping("/user/{username}/update")
     public ResponseEntity<UserReadOnlyDTO> updateUser(@PathVariable("username") String username,
-                                                      @RequestBody UserUpdateDTO userUpdateDTO, BindingResult bindingResult)
-            throws ValidationException, AppObjectInvalidArgumentException, DataIntegrityViolationException, AppObjectNotAuthorizedException, AppObjectNotFoundException {
+                                                      @Valid @RequestBody UserUpdateDTO userUpdateDTO, BindingResult bindingResult)
+            throws ValidationException, AppObjectInvalidArgumentException, DataIntegrityViolationException, AppObjectNotAuthorizedException, AppObjectNotFoundException, AppObjectAlreadyExistsException {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
         }

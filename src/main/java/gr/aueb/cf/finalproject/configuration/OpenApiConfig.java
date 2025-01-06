@@ -1,6 +1,5 @@
 package gr.aueb.cf.finalproject.configuration;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -18,9 +17,9 @@ public class OpenApiConfig  {
         return new OpenAPI()
                 .info(new Info()
                         .title("CRUD API template")
-                        .version("1.0")
+                        .version("1.1")
                         .description("A simple example API with JWT support. Admin Role user has access to everything. Users have access to manage their own accounts." +
-                                "Delete is just marking an account as inactive and does not actually delete it."))
+                                "Delete is just marking an account as inactive and does not actually delete it. /update is the only one that must be done by the user itself and cannot be done by admin, for user security reasons."))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(securitySchemeName,

@@ -17,12 +17,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +56,7 @@ public class UserService {
             User user = mapper.mapToUserEntity(userInsertDTO);
             user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword()));
             user.setIsActive(true);
-            // uncomment to make the next user an admin, comment otherwise
+            // uncomment to make an admin, comment otherwise
 //            user.setRole(Role.ADMIN);
             userRepository.save(user);
             return mapper.mapToUserReadOnlyDTO(user);
@@ -71,9 +70,12 @@ public class UserService {
 
     @Transactional(rollbackOn = Exception.class)
     public UserReadOnlyDTO updateUser(String username,UserUpdateDTO userUpdateDTO)
-            throws AppObjectNotFoundException, AppObjectInvalidArgumentException {
+            throws AppObjectNotFoundException, AppObjectInvalidArgumentException, AppObjectAlreadyExistsException {
 
         User user  = userRepository.findByUsername(username).orElseThrow(() -> new AppObjectNotFoundException("Username", "Username not found"));
+        if (userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()) {
+            throw new AppObjectAlreadyExistsException("Email", userUpdateDTO.getEmail() + " already exists.");
+        }
         try {
             User userToUpdate = mapper.mapToUpdateUserEntity(userUpdateDTO,user);
             user.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
