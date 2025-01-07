@@ -10,6 +10,8 @@ import gr.aueb.cf.finalproject.dto.UserUpdateDTO;
 import gr.aueb.cf.finalproject.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserRestController {
     private final UserService userService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
 
     @PostMapping("/users/save")
@@ -36,6 +39,7 @@ public class UserRestController {
             throw new ValidationException(bindingResult);
         }
         UserReadOnlyDTO userReadOnlyDTO = userService.saveUser(userInsertDTO);
+        LOGGER.info("Saved user: {}", userInsertDTO.getUsername());
         return new ResponseEntity<>(userReadOnlyDTO, HttpStatus.CREATED);
     }
 
@@ -52,11 +56,12 @@ public class UserRestController {
             throw new AppObjectNotAuthorizedException("User Update","not authorized");
         }
         UserReadOnlyDTO updatedUser = userService.updateUser(username,userUpdateDTO);
+        LOGGER.info("User updated: {}", updatedUser);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/user/{username}/delete")
-    public ResponseEntity<UserReadOnlyDTO> deleteUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
+    @PutMapping("/user/{username}/deactivate")
+    public ResponseEntity<UserReadOnlyDTO> deactivateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
 
         String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         String userRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
@@ -65,7 +70,19 @@ public class UserRestController {
             throw new AppObjectNotAuthorizedException("User deletion ","not authorized");
         }
         UserReadOnlyDTO updatedUser = userService.setUserInactive(username);
+        LOGGER.info("User deactivated: {}", updatedUser);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/user/{id}/delete")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws AppObjectNotAuthorizedException,AppObjectInvalidArgumentException,AppObjectNotFoundException {
+        String userRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
+        if (!Objects.equals(userRole, Role.ADMIN.toString())) {
+            throw new AppObjectNotAuthorizedException("User deletion ","not authorized");
+        }
+        userService.deleteUser(id);
+        LOGGER.info("User deleted: {}", id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/user/{username}/activate")
@@ -78,6 +95,7 @@ public class UserRestController {
             throw new AppObjectNotAuthorizedException("User activation ","not authorized");
         }
         UserReadOnlyDTO updatedUser = userService.setUserActive(username);
+        LOGGER.info("User activated: {}", updatedUser);
         return ResponseEntity.ok(updatedUser);
     }
     @GetMapping("/users")

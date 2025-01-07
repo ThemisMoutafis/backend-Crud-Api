@@ -1,6 +1,5 @@
 package gr.aueb.cf.finalproject.service;
 
-import gr.aueb.cf.finalproject.core.enums.Role;
 import gr.aueb.cf.finalproject.core.exceptions.AppObjectAlreadyExistsException;
 import gr.aueb.cf.finalproject.core.exceptions.AppObjectInvalidArgumentException;
 import gr.aueb.cf.finalproject.core.exceptions.AppObjectNotAuthorizedException;
@@ -25,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -104,7 +102,7 @@ public class UserService {
 
     @Transactional(rollbackOn = Exception.class)
     public UserReadOnlyDTO setUserActive(String username)
-            throws AppObjectNotFoundException, AppObjectInvalidArgumentException, AppObjectNotAuthorizedException {
+            throws AppObjectNotFoundException, AppObjectInvalidArgumentException {
 
         User user  = userRepository.findByUsername(username).orElseThrow(() -> new AppObjectNotFoundException("Username", "Username not found"));
         try {
@@ -117,6 +115,18 @@ public class UserService {
         }
     }
 
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteUser(Long id) throws AppObjectNotFoundException, AppObjectInvalidArgumentException {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new AppObjectNotFoundException("Username", "Username not found"));
+        try {
+            userRepository.delete(user);
+            mapper.mapToUserReadOnlyDTO(user);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            throw new AppObjectInvalidArgumentException("Error deleting user: ", "invalid argument");
+        }
+    }
     @Transactional
     public List<User> getUsersByCountry(Country country){
         return userRepository.findByCountry(country);

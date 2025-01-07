@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserReadOnlyDTO {
+    private long id;
     private String firstname;
     private String lastname;
     private String email;
