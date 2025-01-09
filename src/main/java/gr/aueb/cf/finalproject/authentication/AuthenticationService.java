@@ -30,6 +30,6 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppObjectNotAuthorizedException("User","User not found"));
 
         String token = jwtService.generateToken(authentication.getName(),user.getRole().name());
-        return new AuthenticationResponseDTO(user.getFirstname(), user.getLastname(),user.getBirthdate(),user.getCountry().getName(), token);
+        return new AuthenticationResponseDTO(user.getFirstname(), user.getEmail(),user.getBirthdate(),user.getCountry().getName(), token);
     }
 }
