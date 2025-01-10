@@ -26,9 +26,14 @@ public class JwtService {
 //    if use refresh expiration token
 //    private long refreshExpiration = 604800000;
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role,String firstname, String email, String dateOfBirth,String countryName) {
         var claims = new HashMap<String, Object>();
         claims.put("role", role);
+        claims.put("firstname", firstname);
+        claims.put("email", email);
+        claims.put("dateOfBirth", dateOfBirth);
+        claims.put("countryName", countryName);
+        claims.put("username", username);
         return Jwts
                 .builder()
                 .setIssuer("self") // todo

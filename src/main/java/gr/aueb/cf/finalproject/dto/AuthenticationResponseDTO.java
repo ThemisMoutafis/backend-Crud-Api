@@ -13,9 +13,5 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponseDTO {
-    private String firstname;
-    private String email;
-    private LocalDate dateOfBirth;
-    private String countryName;
     private String token;
 }
