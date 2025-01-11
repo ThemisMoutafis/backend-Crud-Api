@@ -61,7 +61,7 @@ public class UserRestController {
     }
 
     @PutMapping("/user/{username}/deactivate")
-    public ResponseEntity<UserReadOnlyDTO> deactivateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
+    public ResponseEntity<Void> deactivateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
 
         String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         String userRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
@@ -71,7 +71,7 @@ public class UserRestController {
         }
         UserReadOnlyDTO updatedUser = userService.setUserInactive(username);
         LOGGER.info("User deactivated: {}", updatedUser);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/user/{id}/delete")
@@ -86,7 +86,7 @@ public class UserRestController {
     }
 
     @PutMapping("/user/{username}/activate")
-    public ResponseEntity<UserReadOnlyDTO> activateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
+    public ResponseEntity<Void> activateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
 
         String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         String userRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
@@ -96,7 +96,7 @@ public class UserRestController {
         }
         UserReadOnlyDTO updatedUser = userService.setUserActive(username);
         LOGGER.info("User activated: {}", updatedUser);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.noContent().build();
     }
     @GetMapping("/users")
     public ResponseEntity<Page<UserReadOnlyDTO>> getPaginatedUsers(

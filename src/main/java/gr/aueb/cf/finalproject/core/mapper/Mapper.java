@@ -38,7 +38,7 @@ public class Mapper {
         return user;
     }
     public UserReadOnlyDTO mapToUserReadOnlyDTO(User user) {
-        return new UserReadOnlyDTO(user.getId(),user.getFirstname(),user.getLastname(),user.getEmail(),user.getCountry().getName(), user.getIsActive());
+        return new UserReadOnlyDTO(user.getId(),user.getUsername(),user.getFirstname(),user.getLastname(),user.getEmail(),user.getCountry().getName(), user.getIsActive());
     }
 
     public User mapToUpdateUserEntity(UserUpdateDTO userUpdateDTO, User user)  {
