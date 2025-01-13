@@ -35,7 +35,7 @@ public class AuthRestController {
         if (user.isPresent() && Boolean.FALSE.equals(user.get().getIsActive())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of(
-                            "status", "error",
+                            "error", "inactive",
                             "message", "User account is inactive. Please contact support."
                     ));
         }
