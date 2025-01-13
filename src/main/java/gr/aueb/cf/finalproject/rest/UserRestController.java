@@ -4,9 +4,13 @@ package gr.aueb.cf.finalproject.rest;
 import gr.aueb.cf.finalproject.core.enums.Role;
 import gr.aueb.cf.finalproject.core.exceptions.*;
 
+import gr.aueb.cf.finalproject.dto.AuthenticationResponseDTO;
 import gr.aueb.cf.finalproject.dto.UserInsertDTO;
 import gr.aueb.cf.finalproject.dto.UserReadOnlyDTO;
 import gr.aueb.cf.finalproject.dto.UserUpdateDTO;
+import gr.aueb.cf.finalproject.model.User;
+import gr.aueb.cf.finalproject.repository.UserRepository;
+import gr.aueb.cf.finalproject.security.JwtService;
 import gr.aueb.cf.finalproject.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 
 @RestController
@@ -29,6 +34,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserRestController {
     private final UserService userService;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
 
@@ -44,7 +51,7 @@ public class UserRestController {
     }
 
     @PutMapping("/user/{username}/update")
-    public ResponseEntity<UserReadOnlyDTO> updateUser(@PathVariable("username") String username,
+    public ResponseEntity<AuthenticationResponseDTO> updateUser(@PathVariable("username") String username,
                                                       @Valid @RequestBody UserUpdateDTO userUpdateDTO, BindingResult bindingResult)
             throws ValidationException, AppObjectInvalidArgumentException, DataIntegrityViolationException, AppObjectNotAuthorizedException, AppObjectNotFoundException, AppObjectAlreadyExistsException {
         if (bindingResult.hasErrors()) {
@@ -56,9 +63,16 @@ public class UserRestController {
             throw new AppObjectNotAuthorizedException("User Update","not authorized");
         }
         UserReadOnlyDTO updatedUser = userService.updateUser(username,userUpdateDTO);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppObjectNotFoundException("User","not found"));
+
+        AuthenticationResponseDTO authenticationResponseDTO = new AuthenticationResponseDTO();
+        String token =jwtService.generateToken(user.getUsername(), user.getRole().name(), user.getFirstname(),user.getLastname(), user.getEmail(), user.getBirthdate().toString(), user.getCountry().getName());
+        authenticationResponseDTO.setToken(token);
         LOGGER.info("User updated: {}", updatedUser);
-        return ResponseEntity.ok(updatedUser);
-    }
+        return ResponseEntity.ok(authenticationResponseDTO);
+        }
+
 
     @PutMapping("/user/{username}/deactivate")
     public ResponseEntity<Void> deactivateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {

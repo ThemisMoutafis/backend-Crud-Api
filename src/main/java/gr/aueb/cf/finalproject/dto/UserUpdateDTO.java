@@ -20,6 +20,9 @@ public class UserUpdateDTO {
     @Pattern(regexp = "^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\\d)(?=.*?[@#$!%&*]).{8,}$",
             message = "Invalid Password")
     private String password;
+    @Pattern(regexp = "^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?\\d)(?=.*?[@#$!%&*]).{8,}$",
+            message = "Invalid Password")
+    private String oldPassword;
     @NotEmpty(message ="firstname name is required")
     private String firstname;
     @NotEmpty(message ="lastname name is required")

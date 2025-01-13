@@ -48,7 +48,6 @@ public class Mapper {
         Country country = countryRepository.findByName(userUpdateDTO.getCountryName())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid country ID"));
         user.setCountry(country);
-        user.setPassword(userUpdateDTO.getPassword());
         user.setBirthdate(userUpdateDTO.getBirthdate());
 
         return user;

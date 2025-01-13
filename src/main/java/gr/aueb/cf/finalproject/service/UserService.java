@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -71,12 +72,25 @@ public class UserService {
             throws AppObjectNotFoundException, AppObjectInvalidArgumentException, AppObjectAlreadyExistsException {
 
         User user  = userRepository.findByUsername(username).orElseThrow(() -> new AppObjectNotFoundException("Username", "Username not found"));
-        if (userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()
+                && !user.getEmail().equals(userUpdateDTO.getEmail())) {
             throw new AppObjectAlreadyExistsException("Email", userUpdateDTO.getEmail() + " already exists.");
+        }
+        if (!(passwordEncoder.matches(userUpdateDTO.getOldPassword(), user.getPassword()))) {
+            throw new AppObjectInvalidArgumentException("password", "password does not match.");
+        }
+        Country country = countryRepository.findByName(userUpdateDTO.getCountryName())
+                .orElseThrow(() -> new AppObjectInvalidArgumentException("Country","Invalid country name."));
+        if (Objects.equals(userUpdateDTO.getOldPassword(), userUpdateDTO.getPassword())) {
+            throw new AppObjectAlreadyExistsException("Password","Password already exists.");
         }
         try {
             User userToUpdate = mapper.mapToUpdateUserEntity(userUpdateDTO,user);
-            user.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
+            if (userUpdateDTO.getPassword() != null && !userUpdateDTO.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
+            } else if (userUpdateDTO.getOldPassword() != null && !userUpdateDTO.getOldPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userUpdateDTO.getOldPassword()));
+            }
             userRepository.save(userToUpdate);
             return mapper.mapToUserReadOnlyDTO(userToUpdate);
         } catch (Exception e) {

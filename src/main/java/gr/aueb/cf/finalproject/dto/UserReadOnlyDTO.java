@@ -17,4 +17,20 @@ public class UserReadOnlyDTO {
     private String email;
     private String countryName;
     private boolean isActive;
+
+    @Override
+    public String toString() {
+        return "UserReadOnlyDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", countryName='" + countryName + '\'' +
+                ", isActive=" + isActive +
+                '}';
+    }
+
 }
+
+
