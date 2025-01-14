@@ -139,7 +139,7 @@ public class UserRestController {
     /**
      *  produces a paginated list of all the users.
      * @param page the page that is returned
-     * @param size the size of each page when generated.
+     * @param size the size of each page when it is generated.
      */
     @GetMapping("/users")
     public ResponseEntity<Page<UserReadOnlyDTO>> getPaginatedUsers(
