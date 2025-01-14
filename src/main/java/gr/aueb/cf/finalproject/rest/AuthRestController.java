@@ -28,6 +28,12 @@ public class AuthRestController {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
 
+    /**
+     * authenticating the user , also known as login service.
+     * @param authenticationRequestDTO the username and password of the request.
+     * @return 403.Forbidden if user is inactive. 201.OK and JWT if all goes well.
+     * @throws AppObjectNotAuthorizedException when authentication does not match.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequestDTO authenticationRequestDTO)
     throws AppObjectNotAuthorizedException {

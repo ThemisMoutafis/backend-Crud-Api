@@ -1,19 +1,18 @@
 package gr.aueb.cf.finalproject.rest;
-
 import gr.aueb.cf.finalproject.core.exceptions.AppGenericException;
-import gr.aueb.cf.finalproject.core.exceptions.AppObjectAlreadyExistsException;
 import gr.aueb.cf.finalproject.core.exceptions.ValidationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used as a 'manager' for exceptions happening on controllers.
+ * It handles them and produces appropriate error responses to send back.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(AppGenericException.class)

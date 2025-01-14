@@ -1,9 +1,6 @@
 package gr.aueb.cf.finalproject.rest;
-
-
 import gr.aueb.cf.finalproject.core.enums.Role;
 import gr.aueb.cf.finalproject.core.exceptions.*;
-
 import gr.aueb.cf.finalproject.dto.AuthenticationResponseDTO;
 import gr.aueb.cf.finalproject.dto.UserInsertDTO;
 import gr.aueb.cf.finalproject.dto.UserReadOnlyDTO;
@@ -21,12 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Objects;
-import java.util.Optional;
 
 
 @RestController
@@ -38,7 +32,12 @@ public class UserRestController {
     private final UserRepository userRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-
+    /**
+     *  Takes a UserInsertDTO post request and saves the user to the database
+     * @param userInsertDTO the user information to save
+     * @param bindingResult the validation result
+     * @return a simple UserReadOnlyDTO with the information of the user that was just saved.
+     */
     @PostMapping("/users/save")
     public ResponseEntity<UserReadOnlyDTO> saveUser(@Valid @RequestBody UserInsertDTO userInsertDTO, BindingResult bindingResult)
     throws ValidationException, AppObjectAlreadyExistsException,AppObjectInvalidArgumentException, DataIntegrityViolationException {
@@ -50,6 +49,19 @@ public class UserRestController {
         return new ResponseEntity<>(userReadOnlyDTO, HttpStatus.CREATED);
     }
 
+    /**
+     * Updates a user's information through the usage of the username in the PUT request.
+     * Some information like the username cannot be changed by design
+     * @param username the username the query will be based upon.
+     * @param userUpdateDTO the information the request has to pass so that the update will take place.
+     * @param bindingResult validation results.
+     * @throws ValidationException what happens if validation results have errors written in it.
+     * @throws AppObjectInvalidArgumentException if for example, the country name does not match a country from db, or the date of birth is not a real date.
+     * @throws AppObjectNotAuthorizedException only the already authenticated user may use this service since it's updating personal information
+     * like passwords.
+     * @throws AppObjectNotFoundException makes sure the username will match a user in the database.
+     * @throws AppObjectAlreadyExistsException if user tries , for example, to change his email to an email that already exists.
+     */
     @PutMapping("/user/{username}/update")
     public ResponseEntity<AuthenticationResponseDTO> updateUser(@PathVariable("username") String username,
                                                       @Valid @RequestBody UserUpdateDTO userUpdateDTO, BindingResult bindingResult)
@@ -73,7 +85,10 @@ public class UserRestController {
         return ResponseEntity.ok(authenticationResponseDTO);
         }
 
-
+    /**
+     * deactivating a user to avoid permanent delete. same logic as  {@link #updateUser(String, UserUpdateDTO, BindingResult)}, but this one can also be done by admin role authority.
+     * @throws AppObjectNotAuthorizedException admin role or authenticated user required.
+     */
     @PutMapping("/user/{username}/deactivate")
     public ResponseEntity<Void> deactivateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
 
@@ -88,6 +103,10 @@ public class UserRestController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * deleting a user. while deactivating is an option, nevertheless, a delete option is there for admin users.
+     * @throws AppObjectNotAuthorizedException admin role is required here.
+     */
     @DeleteMapping("/user/{id}/delete")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws AppObjectNotAuthorizedException,AppObjectInvalidArgumentException,AppObjectNotFoundException {
         String userRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
@@ -99,6 +118,10 @@ public class UserRestController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     *activating a user to avoid permanent delete. same logic as  {@link #updateUser(String, UserUpdateDTO, BindingResult)}, but this one can also be done by admin role authority.
+     * @throws AppObjectNotAuthorizedException admin role, or authenticated user required.
+     */
     @PutMapping("/user/{username}/activate")
     public ResponseEntity<Void> activateUser(@PathVariable("username") String username) throws AppObjectNotAuthorizedException, AppObjectInvalidArgumentException, AppObjectNotFoundException {
 
@@ -112,11 +135,17 @@ public class UserRestController {
         LOGGER.info("User activated: {}", updatedUser);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     *  produces a paginated list of all the users.
+     * @param page the page that is returned
+     * @param size the size of each page when generated.
+     */
     @GetMapping("/users")
     public ResponseEntity<Page<UserReadOnlyDTO>> getPaginatedUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            Model model) {
+            @RequestParam(defaultValue = "5") int size
+            ) {
 
         Page<UserReadOnlyDTO> usersPage = userService.getPaginatedUsers(page, size);
         return new ResponseEntity<>(usersPage, HttpStatus.OK);
